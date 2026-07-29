@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Finance - Loan Application</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #0284c7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 1rem; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 900px; background: var(--card); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid var(--border); }
+    header { background: var(--primary); color: #fff; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+    .brand-title { font-size: 1.2rem; font-weight: 600; }
+    .app-id { background: rgba(255,255,255,0.2); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1.5rem; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 0.85rem; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 0.25rem; }
+    input, select { width: 100%; padding: 0.65rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 1.25rem; }
+    .card-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
+    .card-row.total { font-weight: bold; color: var(--primary); font-size: 1rem; border-top: 1px dashed #7dd3fc; padding-top: 0.5rem; margin-top: 0.5rem; }
+    .repayment { background: var(--primary); color: #fff; text-align: center; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    .repayment .val { font-size: 1.8rem; font-weight: 700; margin-top: 0.2rem; }
+    .btn-group { display: flex; gap: 0.75rem; margin-top: 1rem; }
+    .btn { flex: 1; padding: 0.75rem; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+    .btn-save { background: #e2e8f0; color: var(--text); }
+    .btn-send { background: var(--primary); color: #fff; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #0f172a; color: #fff; padding: 0.75rem 1.25rem; border-radius: 6px; display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <div class="brand-title">Apex Finance Brokerage</div>
+        <div style="font-size: 0.8rem; opacity: 0.8;">Client Loan Calculator</div>
+      </div>
+      <div class="app-id" id="appId">APP-84920</div>
+    </header>
+
+    <div class="grid">
+      <div>
+        <div class="form-group">
+          <label>Client Name</label>
+          <input type="text" id="clientName" value="John Doe">
+        </div>
+        <div class="form-group">
+          <label>Property Address</label>
+          <input type="text" id="propertyAddress" value="123 Example Street">
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Likely Price ($)</label>
+            <input type="number" id="price" value="750000" step="5000">
+          </div>
+          <div class="form-group">
+            <label>Desired LVR (%)</label>
+            <input type="number" id="lvr" value="80" min="1" max="95">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Interest Rate (%)</label>
+            <input type="number" id="rate" value="6.25" step="0.05">
+          </div>
+          <div class="form-group">
+            <label>Term (Years)</label>
+            <select id="term">
+              <option value="30">30 Years</option>
+              <option value="25">25 Years</option>
+              <option value="20">20 Years</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Stamp Duty (%)</label>
+            <input type="number" id="duty" value="4.0" step="0.1">
+          </div>
+          <div class="form-group">
+            <label>Transfer/Legal ($)</label>
+            <input type="number" id="legal" value="2500" step="100">
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-row"><span>Loan Amount</span><strong id="outLoan">$0</strong></div>
+          <div class="card-row"><span>Est. Stamp Duty</span><strong id="outDuty">$0</strong></div>
+          <div class="card-row"><span>Purchase Costs</span><strong id="outLegal">$0</strong></div>
+          <div class="card-row total"><span>Total Funds Required</span><strong id="outTotal">$0</strong></div>
+          <div class="card-row total" style="color: var(--accent);"><span>Required Equity</span><strong id="outEquity">$0</strong></div>
+        </div>
+
+        <div class="repayment">
+          <div>Est. Monthly Repayment</div>
+          <div class="val" id="outRepayment">$0 / mo</div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-save" onclick="notify('Finance summary draft saved.')">💾 Save</button>
+          <button class="btn btn-send" onclick="notify('Summary dispatched to client via SMS/Email.')">📤 Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    document.getElementById('appId').innerText = 'APP-' + Math.floor(10000 + Math.random() * 90000);
+    const inputs = ['price', 'lvr', 'rate', 'term', 'duty', 'legal'];
+    inputs.forEach(id => document.getElementById(id).addEventListener('input', calc));
+
+    function fmt(num) {
+      return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 }).format(num);
+    }
+
+    function calc() {
+      const price = parseFloat(document.getElementById('price').value) || 0;
+      const lvr = parseFloat(document.getElementById('lvr').value) || 0;
+      const rate = parseFloat(document.getElementById('rate').value) || 0;
+      const term = parseInt(document.getElementById('term').value) || 30;
+      const duty = parseFloat(document.getElementById('duty').value) || 0;
+      const legal = parseFloat(document.getElementById('legal').value) || 0;
+
+      const loan = price * (lvr / 100);
+      const dutyVal = price * (duty / 100);
+      const total = price + dutyVal + legal;
+      const equity = total - loan;
+
+      const mRate = (rate / 100) / 12;
+      const nPayments = term * 12;
+      let monthly = 0;
+      if (mRate > 0) {
+        monthly = loan * (mRate * Math.pow(1 + mRate, nPayments)) / (Math.pow(1 + mRate, nPayments) - 1);
+      } else {
+        monthly = loan / nPayments;
+      }
+
+      document.getElementById('outLoan').innerText = fmt(loan);
+      document.getElementById('outDuty').innerText = fmt(dutyVal);
+      document.getElementById('outLegal').innerText = fmt(legal);
+      document.getElementById('outTotal').innerText = fmt(total);
+      document.getElementById('outEquity').innerText = fmt(equity);
+      document.getElementById('outRepayment').innerText = fmt(monthly) + ' / mo';
+    }
+
+    function notify(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+
+    calc();
+  </script>
+</body>
+</html>
