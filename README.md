@@ -4,7 +4,7 @@ A lightweight, responsive web application designed for mortgage brokers and clie
 
 🚀 **Live Web App:** [https://bazbyte.github.io/airtasker/](https://bazbyte.github.io/airtasker/)
 
-> 👈 **Click the image above to launch the live interactive app!**
+**Click the image above to launch the live interactive app!**
 
 [![Click to Open Live Web App](image/README/iPhone.png)](https://bazbyte.github.io/airtasker/)              [![Click to Open Live Web App](image/README/iPad.png)](https://bazbyte.github.io/airtasker/).
 
