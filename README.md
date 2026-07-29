@@ -56,16 +56,19 @@ $$
 
 ### 4. Monthly Repayment ($M$)
 
-* **Interest-Only Period ($M_{\text{IO}}$):**
+**Interest-Only Period ($M_{\text{IO}}$):**
 
-  $$
-  M_{\text{IO}} = P \times r
-  $$
-* **Post Interest-Only P&I Period ($M_{\text{PI}}$):**
+$$
+M_{\text{IO}} = P \times r
+$$
 
-  $$
-  M_{\text{PI}} = P \cdot \frac{r(1 + r)^{n_{\text{remaining}}}}{(1 + r)^{n_{\text{remaining}}} - 1}
-  $$
+**Post Interest-Only P&I Period ($M_{\text{PI}}$):**
+
+$$
+M_{\text{PI}} = P \cdot \frac{r(1 + r)^{n_{\text{remaining}}}}{(1 + r)^{n_{\text{remaining}}} - 1}
+$$
+
+---
 
 ## 🛠️ Requirements & Prerequisites
 
