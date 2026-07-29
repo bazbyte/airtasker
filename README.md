@@ -31,16 +31,19 @@ $$
 \text{Loan Amount} = \text{Property Price} \times \left(\frac{\text{LVR}}{100}\right)
 $$
 
-### 2. Stamp Duty & Upfront Costs
 
-$$
-\text{Stamp Duty} = \text{Property Price} \times \left(\frac{\text{Stamp Duty \%}}{100}\right)
-$$
+### 2. Lenders Mortgage Insurance (LMI)
+
+Calculated automatically when $\text{LVR} > 80\%$:
+
+* **$80\% < \text{LVR} \le 85\%$:** $\text{LMI} = \text{Loan Amount} \times 1.2\%$
+* **$85\% < \text{LVR} \le 90\%$:** $\text{LMI} = \text{Loan Amount} \times 2.4\%$
+* **$\text{LVR} > 90\%$:** $\text{LMI} = \text{Loan Amount} \times 4.2\%$
 
 ### 3. Total Funds Required & Required Equity
 
 $$
-\text{Total Funds Required} = \text{Property Price} + \text{Stamp Duty} + \text{Legal / Transfer Fees}
+\text{Total Funds Required} = \text{Property Price} + \text{Stamp Duty} + \text{Legal Fees} + \text{LMI}
 $$
 
 $$
@@ -49,17 +52,14 @@ $$
 
 ### 4. Monthly Repayment ($M$)
 
-Monthly principal and interest repayments are calculated using the standard mortgage amortization formula:
-
-$$
-M = P \cdot \frac{r(1 + r)^n}{(1 + r)^n - 1}
-$$
-
-Where:
-
-* **$P$**: Principal Loan Amount
-* **$r$**: Monthly Interest Rate = $\frac{\text{Annual Interest Rate}}{12 \times 100}$
-* **$n$**: Total Number of Monthly Payments = $\text{Loan Term (Years)} \times 12$
+* **Interest-Only Period ($M_{\text{IO}}$):**
+  $$
+  M_{\text{IO}} = P \times r
+  $$
+* **Post Interest-Only P&I Period ($M_{\text{P\&I}}$):**
+  $$
+  M_{\text{P\&I}} = P \cdot \frac{r(1 + r)^{n_{\text{remaining}}}}{(1 + r)^{n_{\text{remaining}}} - 1}
+  $$
 
 ---
 

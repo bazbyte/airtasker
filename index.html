@@ -30,7 +30,8 @@
     .card-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
     .card-row.total { font-weight: bold; color: var(--primary); font-size: 1rem; border-top: 1px dashed #7dd3fc; padding-top: 0.5rem; margin-top: 0.5rem; }
     .repayment { background: var(--primary); color: #fff; text-align: center; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
-    .repayment .val { font-size: 1.8rem; font-weight: 700; margin-top: 0.2rem; }
+    .repayment .val { font-size: 1.6rem; font-weight: 700; margin-top: 0.2rem; }
+    .repayment .sub-val { font-size: 0.85rem; opacity: 0.9; margin-top: 0.25rem; }
     .btn-group { display: flex; gap: 0.75rem; margin-top: 1rem; }
     .btn { flex: 1; padding: 0.75rem; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; text-align: center; }
     .btn-save { background: #e2e8f0; color: var(--text); }
@@ -49,7 +50,6 @@
       <div class="app-id" id="appId">APP-84920</div>
     </header>
 
-    <!-- FORM START: FormSubmit Endpoint -->
     <form action="https://formsubmit.co/YOUR_EMAIL@EMAIL.COM" method="POST" class="grid">
       <div>
         <div class="form-group">
@@ -57,7 +57,6 @@
           <input type="text" id="clientName" name="Client Name" value="John Doe" required>
         </div>
         
-        <!-- Added Contact Info Fields -->
         <div class="row">
           <div class="form-group">
             <label for="clientEmail">Email</label>
@@ -102,13 +101,24 @@
 
         <div class="row">
           <div class="form-group">
+            <label for="ioTerm">Interest-Only Period</label>
+            <select id="ioTerm" name="Interest Only Period">
+              <option value="0">None (P&I)</option>
+              <option value="1">1 Year</option>
+              <option value="2">2 Years</option>
+              <option value="3">3 Years</option>
+              <option value="5">5 Years</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label for="duty">Stamp Duty (%)</label>
             <input type="number" id="duty" name="Stamp Duty Rate" value="4.0" step="0.1">
           </div>
-          <div class="form-group">
-            <label for="legal">Transfer/Legal ($)</label>
-            <input type="number" id="legal" name="Legal Fees" value="2500" step="100">
-          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="legal">Transfer/Legal Fees ($)</label>
+          <input type="number" id="legal" name="Legal Fees" value="2500" step="100">
         </div>
       </div>
 
@@ -117,16 +127,17 @@
           <div class="card-row"><span>Loan Amount</span><strong id="outLoan">$0</strong></div>
           <div class="card-row"><span>Est. Stamp Duty</span><strong id="outDuty">$0</strong></div>
           <div class="card-row"><span>Purchase Costs</span><strong id="outLegal">$0</strong></div>
+          <div class="card-row"><span>Est. LMI (LVR &gt; 80%)</span><strong id="outLmi">$0</strong></div>
           <div class="card-row total"><span>Total Funds Required</span><strong id="outTotal">$0</strong></div>
           <div class="card-row total" style="color: var(--accent);"><span>Required Equity</span><strong id="outEquity">$0</strong></div>
         </div>
 
         <div class="repayment">
-          <div>Est. Monthly Repayment</div>
+          <div id="repaymentHeader">Est. Monthly Repayment</div>
           <div class="val" id="outRepayment">$0 / mo</div>
+          <div class="sub-val" id="outSubRepayment"></div>
         </div>
 
-        <!-- Optional Subject -->
         <input type="hidden" name="_subject" value="New Apex Finance Loan Submission">
 
         <div class="btn-group">
@@ -141,7 +152,7 @@
 
   <script>
     document.getElementById('appId').innerText = 'APP-' + Math.floor(10000 + Math.random() * 90000);
-    const inputs = ['price', 'lvr', 'rate', 'term', 'duty', 'legal'];
+    const inputs = ['price', 'lvr', 'rate', 'term', 'ioTerm', 'duty', 'legal'];
     inputs.forEach(id => document.getElementById(id).addEventListener('input', calc));
 
     function fmt(num) {
@@ -153,29 +164,67 @@
       const lvr = parseFloat(document.getElementById('lvr').value) || 0;
       const rate = parseFloat(document.getElementById('rate').value) || 0;
       const term = parseInt(document.getElementById('term').value) || 30;
+      const ioTerm = parseInt(document.getElementById('ioTerm').value) || 0;
       const duty = parseFloat(document.getElementById('duty').value) || 0;
       const legal = parseFloat(document.getElementById('legal').value) || 0;
 
       const loan = price * (lvr / 100);
       const dutyVal = price * (duty / 100);
-      const total = price + dutyVal + legal;
+
+      // LMI Estimation Logic
+      let lmi = 0;
+      if (lvr > 90) {
+        lmi = loan * 0.042; // ~4.2% for high LVR
+      } else if (lvr > 85) {
+        lmi = loan * 0.024; // ~2.4%
+      } else if (lvr > 80) {
+        lmi = loan * 0.012; // ~1.2%
+      }
+
+      const total = price + dutyVal + legal + lmi;
       const equity = total - loan;
 
       const mRate = (rate / 100) / 12;
-      const nPayments = term * 12;
-      let monthly = 0;
-      if (mRate > 0) {
-        monthly = loan * (mRate * Math.pow(1 + mRate, nPayments)) / (Math.pow(1 + mRate, nPayments) - 1);
+
+      let monthlyRepayment = 0;
+      let subsequentRepayment = 0;
+
+      if (ioTerm > 0) {
+        // Interest-Only Repayment
+        monthlyRepayment = loan * mRate;
+        
+        // P&I Repayment after IO period ends
+        const remainingTermYears = term - ioTerm;
+        const nRemainingPayments = remainingTermYears * 12;
+        if (mRate > 0 && nRemainingPayments > 0) {
+          subsequentRepayment = loan * (mRate * Math.pow(1 + mRate, nRemainingPayments)) / (Math.pow(1 + mRate, nRemainingPayments) - 1);
+        }
       } else {
-        monthly = loan / nPayments;
+        // Standard P&I Amortization
+        const nPayments = term * 12;
+        if (mRate > 0) {
+          monthlyRepayment = loan * (mRate * Math.pow(1 + mRate, nPayments)) / (Math.pow(1 + mRate, nPayments) - 1);
+        } else {
+          monthlyRepayment = loan / nPayments;
+        }
       }
 
       document.getElementById('outLoan').innerText = fmt(loan);
       document.getElementById('outDuty').innerText = fmt(dutyVal);
       document.getElementById('outLegal').innerText = fmt(legal);
+      document.getElementById('outLmi').innerText = fmt(lmi);
       document.getElementById('outTotal').innerText = fmt(total);
       document.getElementById('outEquity').innerText = fmt(equity);
-      document.getElementById('outRepayment').innerText = fmt(monthly) + ' / mo';
+
+      if (ioTerm > 0) {
+        document.getElementById('repaymentHeader').innerText = `Est. IO Repayment (Yrs 1–${ioTerm})`;
+        document.getElementById('outRepayment').innerText = fmt(monthlyRepayment) + ' / mo';
+        document.getElementById('outSubRepayment').innerText = `Then ${fmt(subsequentRepayment)} / mo (P&I Yrs ${ioTerm + 1}–${term})`;
+      } else {
+        document.getElementById('repaymentHeader').innerText = 'Est. Monthly Repayment (P&I)';
+        document.getElementById('outRepayment').innerText = fmt(monthlyRepayment) + ' / mo';
+        document.getElementById('outSubRepayment').innerText = '';
+      }
     }
 
     function notify(msg) {
