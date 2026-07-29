@@ -1,4 +1,3 @@
-
 # 🏦 Apex Finance — Client Loan Calculator
 
 A lightweight, responsive web application designed for mortgage brokers and clients to quickly calculate property loan metrics, estimated monthly repayments, required equity, and purchase costs in real time.
@@ -7,8 +6,7 @@ A lightweight, responsive web application designed for mortgage brokers and clie
 
 > 👈 **Click the image above to launch the live interactive app!**
 
-
-[![Click to Open Live Web App](image/README/iPhone.png)](https://bazbyte.github.io/airtasker/)              [![Click to Open Live Web App](image/README/iPad.png)](https://bazbyte.github.io/airtasker/).       
+[![Click to Open Live Web App](image/README/iPhone.png)](https://bazbyte.github.io/airtasker/)              [![Click to Open Live Web App](image/README/iPad.png)](https://bazbyte.github.io/airtasker/).
 
 [![Click to Open Live Web App](image/README/Email.png)](https://bazbyte.github.io/airtasker/)
 
@@ -38,7 +36,6 @@ $$
 \text{Loan Amount} = \text{Property Price} \times \left(\frac{\text{LVR}}{100}\right)
 $$
 
-
 ### 2. Lenders Mortgage Insurance (LMI)
 
 Calculated automatically when $\text{LVR} > 80\%$:
@@ -60,15 +57,15 @@ $$
 ### 4. Monthly Repayment ($M$)
 
 * **Interest-Only Period ($M_{\text{IO}}$):**
+
   $$
   M_{\text{IO}} = P \times r
   $$
-* **Post Interest-Only P&I Period ($M_{\text{P\&I}}$):**
-  $$
-  M_{\text{P\&I}} = P \cdot \frac{r(1 + r)^{n_{\text{remaining}}}}{(1 + r)^{n_{\text{remaining}}} - 1}
-  $$
+* **Post Interest-Only P&I Period ($M_{\text{PI}}$):**
 
----
+  $$
+  M_{\text{PI}} = P \cdot \frac{r(1 + r)^{n_{\text{remaining}}}}{(1 + r)^{n_{\text{remaining}}} - 1}
+  $$
 
 ## 🛠️ Requirements & Prerequisites
 
