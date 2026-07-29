@@ -32,7 +32,7 @@
     .repayment { background: var(--primary); color: #fff; text-align: center; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
     .repayment .val { font-size: 1.8rem; font-weight: 700; margin-top: 0.2rem; }
     .btn-group { display: flex; gap: 0.75rem; margin-top: 1rem; }
-    .btn { flex: 1; padding: 0.75rem; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+    .btn { flex: 1; padding: 0.75rem; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; text-align: center; }
     .btn-save { background: #e2e8f0; color: var(--text); }
     .btn-send { background: var(--primary); color: #fff; }
     .toast { position: fixed; bottom: 20px; right: 20px; background: #0f172a; color: #fff; padding: 0.75rem 1.25rem; border-radius: 6px; display: none; }
@@ -49,48 +49,65 @@
       <div class="app-id" id="appId">APP-84920</div>
     </header>
 
-    <div class="grid">
+    <!-- FORM START: FormSubmit Endpoint -->
+    <form action="https://formsubmit.co/YOUR_EMAIL@EMAIL.COM" method="POST" class="grid">
       <div>
         <div class="form-group">
-          <label>Client Name</label>
-          <input type="text" id="clientName" value="John Doe">
+          <label for="clientName">Client Name</label>
+          <input type="text" id="clientName" name="Client Name" value="John Doe" required>
         </div>
+        
+        <!-- Added Contact Info Fields -->
+        <div class="row">
+          <div class="form-group">
+            <label for="clientEmail">Email</label>
+            <input type="email" id="clientEmail" name="Client Email" placeholder="john@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="clientPhone">Phone Number</label>
+            <input type="tel" id="clientPhone" name="Client Phone" placeholder="+61400000000" required>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label>Property Address</label>
-          <input type="text" id="propertyAddress" value="123 Example Street">
+          <label for="propertyAddress">Property Address</label>
+          <input type="text" id="propertyAddress" name="Property Address" value="123 Example Street">
         </div>
+        
         <div class="row">
           <div class="form-group">
-            <label>Likely Price ($)</label>
-            <input type="number" id="price" value="750000" step="5000">
+            <label for="price">Likely Price ($)</label>
+            <input type="number" id="price" name="Property Price" value="750000" step="5000">
           </div>
           <div class="form-group">
-            <label>Desired LVR (%)</label>
-            <input type="number" id="lvr" value="80" min="1" max="95">
+            <label for="lvr">Desired LVR (%)</label>
+            <input type="number" id="lvr" name="Desired LVR" value="80" min="1" max="95">
           </div>
         </div>
+
         <div class="row">
           <div class="form-group">
-            <label>Interest Rate (%)</label>
-            <input type="number" id="rate" value="6.25" step="0.05">
+            <label for="rate">Interest Rate (%)</label>
+            <input type="number" id="rate" name="Interest Rate" value="6.25" step="0.05">
           </div>
           <div class="form-group">
-            <label>Term (Years)</label>
-            <select id="term">
+            <label for="term">Term (Years)</label>
+            <select id="term" name="Loan Term">
               <option value="30">30 Years</option>
               <option value="25">25 Years</option>
               <option value="20">20 Years</option>
             </select>
           </div>
         </div>
+
         <div class="row">
           <div class="form-group">
-            <label>Stamp Duty (%)</label>
-            <input type="number" id="duty" value="4.0" step="0.1">
+            <label for="duty">Stamp Duty (%)</label>
+            <input type="number" id="duty" name="Stamp Duty Rate" value="4.0" step="0.1">
           </div>
           <div class="form-group">
-            <label>Transfer/Legal ($)</label>
-            <input type="number" id="legal" value="2500" step="100">
+            <label for="legal">Transfer/Legal ($)</label>
+            <input type="number" id="legal" name="Legal Fees" value="2500" step="100">
           </div>
         </div>
       </div>
@@ -109,12 +126,15 @@
           <div class="val" id="outRepayment">$0 / mo</div>
         </div>
 
+        <!-- Optional Subject -->
+        <input type="hidden" name="_subject" value="New Apex Finance Loan Submission">
+
         <div class="btn-group">
-          <button class="btn btn-save" onclick="notify('Finance summary draft saved.')">💾 Save</button>
-          <button class="btn btn-send" onclick="notify('Summary dispatched to client via SMS/Email.')">📤 Send</button>
+          <button type="button" class="btn btn-save" onclick="notify('Finance summary draft saved.')">💾 Save</button>
+          <button type="submit" class="btn btn-send">📤 Send</button>
         </div>
       </div>
-    </div>
+    </form>
   </div>
 
   <div class="toast" id="toast"></div>
